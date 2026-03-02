@@ -4,48 +4,59 @@ import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 
-// Генерируемый файл (пока его нет, будет ошибка, это нормально)
 part 'local_database.g.dart';
 
-// 1. Таблица Шаблонов Задач
 class Tasks extends Table {
-  TextColumn get id => text()(); // UUID
+  TextColumn get id => text()();
   TextColumn get title => text().withLength(min: 1, max: 100)();
-  TextColumn get type => text()(); // 'ONE_TIME', 'RECURRING'
+  TextColumn get type => text()();
   IntColumn get points => integer().withDefault(const Constant(3))();
+  TextColumn get startTime => text().nullable()();
+  TextColumn get endTime => text().nullable()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  
+
   @override
   Set<Column> get primaryKey => {id};
 }
 
-// 2. Таблица Правил Повторения
 class RecurringRules extends Table {
   TextColumn get id => text()();
   TextColumn get taskId => text().references(Tasks, #id)();
-  TextColumn get frequency => text()(); // 'DAILY', 'WEEKLY'
+  TextColumn get frequency => text()();
   IntColumn get interval => integer().withDefault(const Constant(1))();
-  TextColumn get daysOfWeek => text().nullable()(); // "1,3,5"
-  
+  TextColumn get daysOfWeek => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
 
-// 3. Таблица Выполненных Задач (Инстансы)
 class TaskInstances extends Table {
   TextColumn get id => text()();
   TextColumn get taskId => text().references(Tasks, #id)();
-  TextColumn get date => text()(); // "2023-10-27" (Строгая привязка к дню)
+  TextColumn get date => text()();
+  TextColumn get startTime => text().nullable()();
+  TextColumn get endTime => text().nullable()();
   BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   BoolColumn get isSkipped => boolean().withDefault(const Constant(false))();
-  
+
   @override
   Set<Column> get primaryKey => {id};
 }
 
-// --- САМА БАЗА ДАННЫХ ---
-@DriftDatabase(tables: [Tasks, RecurringRules, TaskInstances])
+// НОВАЯ ТАБЛИЦА: Статистика за день
+class DailyStats extends Table {
+  TextColumn get date => text()(); // "2026-03-02" (Primary Key)
+  IntColumn get totalPoints => integer().withDefault(const Constant(0))();
+  BoolColumn get allRecurringCompleted =>
+      boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {date};
+}
+
+// ДОБАВИЛИ DailyStats В СПИСОК ТАБЛИЦ
+@DriftDatabase(tables: [Tasks, RecurringRules, TaskInstances, DailyStats])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -53,11 +64,11 @@ class AppDatabase extends _$AppDatabase {
   int get schemaVersion => 1;
 }
 
-// Функция открытия файла БД (работает и на Windows, и на Android)
 LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'discipline.sqlite'));
+    // ФОРСИРУЕМ НОВУЮ БАЗУ (v5)
+    final file = File(p.join(dbFolder.path, 'discipline_v5.sqlite'));
     return NativeDatabase.createInBackground(file);
   });
 }

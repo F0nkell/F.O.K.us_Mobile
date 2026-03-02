@@ -49,6 +49,28 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     requiredDuringInsert: false,
     defaultValue: const Constant(3),
   );
+  static const VerificationMeta _startTimeMeta = const VerificationMeta(
+    'startTime',
+  );
+  @override
+  late final GeneratedColumn<String> startTime = GeneratedColumn<String>(
+    'start_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<String> endTime = GeneratedColumn<String>(
+    'end_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isDeletedMeta = const VerificationMeta(
     'isDeleted',
   );
@@ -82,6 +104,8 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
     title,
     type,
     points,
+    startTime,
+    endTime,
     isDeleted,
     createdAt,
   ];
@@ -124,6 +148,18 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         points.isAcceptableOrUnknown(data['points']!, _pointsMeta),
       );
     }
+    if (data.containsKey('start_time')) {
+      context.handle(
+        _startTimeMeta,
+        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
+      );
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
+    }
     if (data.containsKey('is_deleted')) {
       context.handle(
         _isDeletedMeta,
@@ -161,6 +197,14 @@ class $TasksTable extends Tasks with TableInfo<$TasksTable, Task> {
         DriftSqlType.int,
         data['${effectivePrefix}points'],
       )!,
+      startTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}start_time'],
+      ),
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}end_time'],
+      ),
       isDeleted: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_deleted'],
@@ -183,6 +227,8 @@ class Task extends DataClass implements Insertable<Task> {
   final String title;
   final String type;
   final int points;
+  final String? startTime;
+  final String? endTime;
   final bool isDeleted;
   final DateTime createdAt;
   const Task({
@@ -190,6 +236,8 @@ class Task extends DataClass implements Insertable<Task> {
     required this.title,
     required this.type,
     required this.points,
+    this.startTime,
+    this.endTime,
     required this.isDeleted,
     required this.createdAt,
   });
@@ -200,6 +248,12 @@ class Task extends DataClass implements Insertable<Task> {
     map['title'] = Variable<String>(title);
     map['type'] = Variable<String>(type);
     map['points'] = Variable<int>(points);
+    if (!nullToAbsent || startTime != null) {
+      map['start_time'] = Variable<String>(startTime);
+    }
+    if (!nullToAbsent || endTime != null) {
+      map['end_time'] = Variable<String>(endTime);
+    }
     map['is_deleted'] = Variable<bool>(isDeleted);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
@@ -211,6 +265,12 @@ class Task extends DataClass implements Insertable<Task> {
       title: Value(title),
       type: Value(type),
       points: Value(points),
+      startTime: startTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startTime),
+      endTime: endTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endTime),
       isDeleted: Value(isDeleted),
       createdAt: Value(createdAt),
     );
@@ -226,6 +286,8 @@ class Task extends DataClass implements Insertable<Task> {
       title: serializer.fromJson<String>(json['title']),
       type: serializer.fromJson<String>(json['type']),
       points: serializer.fromJson<int>(json['points']),
+      startTime: serializer.fromJson<String?>(json['startTime']),
+      endTime: serializer.fromJson<String?>(json['endTime']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
@@ -238,6 +300,8 @@ class Task extends DataClass implements Insertable<Task> {
       'title': serializer.toJson<String>(title),
       'type': serializer.toJson<String>(type),
       'points': serializer.toJson<int>(points),
+      'startTime': serializer.toJson<String?>(startTime),
+      'endTime': serializer.toJson<String?>(endTime),
       'isDeleted': serializer.toJson<bool>(isDeleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
@@ -248,6 +312,8 @@ class Task extends DataClass implements Insertable<Task> {
     String? title,
     String? type,
     int? points,
+    Value<String?> startTime = const Value.absent(),
+    Value<String?> endTime = const Value.absent(),
     bool? isDeleted,
     DateTime? createdAt,
   }) => Task(
@@ -255,6 +321,8 @@ class Task extends DataClass implements Insertable<Task> {
     title: title ?? this.title,
     type: type ?? this.type,
     points: points ?? this.points,
+    startTime: startTime.present ? startTime.value : this.startTime,
+    endTime: endTime.present ? endTime.value : this.endTime,
     isDeleted: isDeleted ?? this.isDeleted,
     createdAt: createdAt ?? this.createdAt,
   );
@@ -264,6 +332,8 @@ class Task extends DataClass implements Insertable<Task> {
       title: data.title.present ? data.title.value : this.title,
       type: data.type.present ? data.type.value : this.type,
       points: data.points.present ? data.points.value : this.points,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -276,6 +346,8 @@ class Task extends DataClass implements Insertable<Task> {
           ..write('title: $title, ')
           ..write('type: $type, ')
           ..write('points: $points, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -283,8 +355,16 @@ class Task extends DataClass implements Insertable<Task> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, title, type, points, isDeleted, createdAt);
+  int get hashCode => Object.hash(
+    id,
+    title,
+    type,
+    points,
+    startTime,
+    endTime,
+    isDeleted,
+    createdAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -293,6 +373,8 @@ class Task extends DataClass implements Insertable<Task> {
           other.title == this.title &&
           other.type == this.type &&
           other.points == this.points &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
           other.isDeleted == this.isDeleted &&
           other.createdAt == this.createdAt);
 }
@@ -302,6 +384,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
   final Value<String> title;
   final Value<String> type;
   final Value<int> points;
+  final Value<String?> startTime;
+  final Value<String?> endTime;
   final Value<bool> isDeleted;
   final Value<DateTime> createdAt;
   final Value<int> rowid;
@@ -310,6 +394,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     this.title = const Value.absent(),
     this.type = const Value.absent(),
     this.points = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -319,6 +405,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     required String title,
     required String type,
     this.points = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -330,6 +418,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Expression<String>? title,
     Expression<String>? type,
     Expression<int>? points,
+    Expression<String>? startTime,
+    Expression<String>? endTime,
     Expression<bool>? isDeleted,
     Expression<DateTime>? createdAt,
     Expression<int>? rowid,
@@ -339,6 +429,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
       if (title != null) 'title': title,
       if (type != null) 'type': type,
       if (points != null) 'points': points,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
@@ -350,6 +442,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
     Value<String>? title,
     Value<String>? type,
     Value<int>? points,
+    Value<String?>? startTime,
+    Value<String?>? endTime,
     Value<bool>? isDeleted,
     Value<DateTime>? createdAt,
     Value<int>? rowid,
@@ -359,6 +453,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
       title: title ?? this.title,
       type: type ?? this.type,
       points: points ?? this.points,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
       isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
@@ -380,6 +476,12 @@ class TasksCompanion extends UpdateCompanion<Task> {
     if (points.present) {
       map['points'] = Variable<int>(points.value);
     }
+    if (startTime.present) {
+      map['start_time'] = Variable<String>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<String>(endTime.value);
+    }
     if (isDeleted.present) {
       map['is_deleted'] = Variable<bool>(isDeleted.value);
     }
@@ -399,6 +501,8 @@ class TasksCompanion extends UpdateCompanion<Task> {
           ..write('title: $title, ')
           ..write('type: $type, ')
           ..write('points: $points, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
@@ -810,6 +914,28 @@ class $TaskInstancesTable extends TaskInstances
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _startTimeMeta = const VerificationMeta(
+    'startTime',
+  );
+  @override
+  late final GeneratedColumn<String> startTime = GeneratedColumn<String>(
+    'start_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _endTimeMeta = const VerificationMeta(
+    'endTime',
+  );
+  @override
+  late final GeneratedColumn<String> endTime = GeneratedColumn<String>(
+    'end_time',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _isCompletedMeta = const VerificationMeta(
     'isCompleted',
   );
@@ -845,6 +971,8 @@ class $TaskInstancesTable extends TaskInstances
     id,
     taskId,
     date,
+    startTime,
+    endTime,
     isCompleted,
     isSkipped,
   ];
@@ -880,6 +1008,18 @@ class $TaskInstancesTable extends TaskInstances
       );
     } else if (isInserting) {
       context.missing(_dateMeta);
+    }
+    if (data.containsKey('start_time')) {
+      context.handle(
+        _startTimeMeta,
+        startTime.isAcceptableOrUnknown(data['start_time']!, _startTimeMeta),
+      );
+    }
+    if (data.containsKey('end_time')) {
+      context.handle(
+        _endTimeMeta,
+        endTime.isAcceptableOrUnknown(data['end_time']!, _endTimeMeta),
+      );
     }
     if (data.containsKey('is_completed')) {
       context.handle(
@@ -917,6 +1057,14 @@ class $TaskInstancesTable extends TaskInstances
         DriftSqlType.string,
         data['${effectivePrefix}date'],
       )!,
+      startTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}start_time'],
+      ),
+      endTime: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}end_time'],
+      ),
       isCompleted: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}is_completed'],
@@ -938,12 +1086,16 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
   final String id;
   final String taskId;
   final String date;
+  final String? startTime;
+  final String? endTime;
   final bool isCompleted;
   final bool isSkipped;
   const TaskInstance({
     required this.id,
     required this.taskId,
     required this.date,
+    this.startTime,
+    this.endTime,
     required this.isCompleted,
     required this.isSkipped,
   });
@@ -953,6 +1105,12 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
     map['id'] = Variable<String>(id);
     map['task_id'] = Variable<String>(taskId);
     map['date'] = Variable<String>(date);
+    if (!nullToAbsent || startTime != null) {
+      map['start_time'] = Variable<String>(startTime);
+    }
+    if (!nullToAbsent || endTime != null) {
+      map['end_time'] = Variable<String>(endTime);
+    }
     map['is_completed'] = Variable<bool>(isCompleted);
     map['is_skipped'] = Variable<bool>(isSkipped);
     return map;
@@ -963,6 +1121,12 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
       id: Value(id),
       taskId: Value(taskId),
       date: Value(date),
+      startTime: startTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startTime),
+      endTime: endTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endTime),
       isCompleted: Value(isCompleted),
       isSkipped: Value(isSkipped),
     );
@@ -977,6 +1141,8 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
       id: serializer.fromJson<String>(json['id']),
       taskId: serializer.fromJson<String>(json['taskId']),
       date: serializer.fromJson<String>(json['date']),
+      startTime: serializer.fromJson<String?>(json['startTime']),
+      endTime: serializer.fromJson<String?>(json['endTime']),
       isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       isSkipped: serializer.fromJson<bool>(json['isSkipped']),
     );
@@ -988,6 +1154,8 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
       'id': serializer.toJson<String>(id),
       'taskId': serializer.toJson<String>(taskId),
       'date': serializer.toJson<String>(date),
+      'startTime': serializer.toJson<String?>(startTime),
+      'endTime': serializer.toJson<String?>(endTime),
       'isCompleted': serializer.toJson<bool>(isCompleted),
       'isSkipped': serializer.toJson<bool>(isSkipped),
     };
@@ -997,12 +1165,16 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
     String? id,
     String? taskId,
     String? date,
+    Value<String?> startTime = const Value.absent(),
+    Value<String?> endTime = const Value.absent(),
     bool? isCompleted,
     bool? isSkipped,
   }) => TaskInstance(
     id: id ?? this.id,
     taskId: taskId ?? this.taskId,
     date: date ?? this.date,
+    startTime: startTime.present ? startTime.value : this.startTime,
+    endTime: endTime.present ? endTime.value : this.endTime,
     isCompleted: isCompleted ?? this.isCompleted,
     isSkipped: isSkipped ?? this.isSkipped,
   );
@@ -1011,6 +1183,8 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
       id: data.id.present ? data.id.value : this.id,
       taskId: data.taskId.present ? data.taskId.value : this.taskId,
       date: data.date.present ? data.date.value : this.date,
+      startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      endTime: data.endTime.present ? data.endTime.value : this.endTime,
       isCompleted: data.isCompleted.present
           ? data.isCompleted.value
           : this.isCompleted,
@@ -1024,6 +1198,8 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
           ..write('id: $id, ')
           ..write('taskId: $taskId, ')
           ..write('date: $date, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('isSkipped: $isSkipped')
           ..write(')'))
@@ -1031,7 +1207,8 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
   }
 
   @override
-  int get hashCode => Object.hash(id, taskId, date, isCompleted, isSkipped);
+  int get hashCode =>
+      Object.hash(id, taskId, date, startTime, endTime, isCompleted, isSkipped);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1039,6 +1216,8 @@ class TaskInstance extends DataClass implements Insertable<TaskInstance> {
           other.id == this.id &&
           other.taskId == this.taskId &&
           other.date == this.date &&
+          other.startTime == this.startTime &&
+          other.endTime == this.endTime &&
           other.isCompleted == this.isCompleted &&
           other.isSkipped == this.isSkipped);
 }
@@ -1047,6 +1226,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
   final Value<String> id;
   final Value<String> taskId;
   final Value<String> date;
+  final Value<String?> startTime;
+  final Value<String?> endTime;
   final Value<bool> isCompleted;
   final Value<bool> isSkipped;
   final Value<int> rowid;
@@ -1054,6 +1235,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
     this.id = const Value.absent(),
     this.taskId = const Value.absent(),
     this.date = const Value.absent(),
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.isCompleted = const Value.absent(),
     this.isSkipped = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1062,6 +1245,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
     required String id,
     required String taskId,
     required String date,
+    this.startTime = const Value.absent(),
+    this.endTime = const Value.absent(),
     this.isCompleted = const Value.absent(),
     this.isSkipped = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1072,6 +1257,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
     Expression<String>? id,
     Expression<String>? taskId,
     Expression<String>? date,
+    Expression<String>? startTime,
+    Expression<String>? endTime,
     Expression<bool>? isCompleted,
     Expression<bool>? isSkipped,
     Expression<int>? rowid,
@@ -1080,6 +1267,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
       if (id != null) 'id': id,
       if (taskId != null) 'task_id': taskId,
       if (date != null) 'date': date,
+      if (startTime != null) 'start_time': startTime,
+      if (endTime != null) 'end_time': endTime,
       if (isCompleted != null) 'is_completed': isCompleted,
       if (isSkipped != null) 'is_skipped': isSkipped,
       if (rowid != null) 'rowid': rowid,
@@ -1090,6 +1279,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
     Value<String>? id,
     Value<String>? taskId,
     Value<String>? date,
+    Value<String?>? startTime,
+    Value<String?>? endTime,
     Value<bool>? isCompleted,
     Value<bool>? isSkipped,
     Value<int>? rowid,
@@ -1098,6 +1289,8 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
       id: id ?? this.id,
       taskId: taskId ?? this.taskId,
       date: date ?? this.date,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.endTime,
       isCompleted: isCompleted ?? this.isCompleted,
       isSkipped: isSkipped ?? this.isSkipped,
       rowid: rowid ?? this.rowid,
@@ -1115,6 +1308,12 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
     }
     if (date.present) {
       map['date'] = Variable<String>(date.value);
+    }
+    if (startTime.present) {
+      map['start_time'] = Variable<String>(startTime.value);
+    }
+    if (endTime.present) {
+      map['end_time'] = Variable<String>(endTime.value);
     }
     if (isCompleted.present) {
       map['is_completed'] = Variable<bool>(isCompleted.value);
@@ -1134,8 +1333,296 @@ class TaskInstancesCompanion extends UpdateCompanion<TaskInstance> {
           ..write('id: $id, ')
           ..write('taskId: $taskId, ')
           ..write('date: $date, ')
+          ..write('startTime: $startTime, ')
+          ..write('endTime: $endTime, ')
           ..write('isCompleted: $isCompleted, ')
           ..write('isSkipped: $isSkipped, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DailyStatsTable extends DailyStats
+    with TableInfo<$DailyStatsTable, DailyStat> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DailyStatsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _totalPointsMeta = const VerificationMeta(
+    'totalPoints',
+  );
+  @override
+  late final GeneratedColumn<int> totalPoints = GeneratedColumn<int>(
+    'total_points',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _allRecurringCompletedMeta =
+      const VerificationMeta('allRecurringCompleted');
+  @override
+  late final GeneratedColumn<bool> allRecurringCompleted =
+      GeneratedColumn<bool>(
+        'all_recurring_completed',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("all_recurring_completed" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    date,
+    totalPoints,
+    allRecurringCompleted,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'daily_stats';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<DailyStat> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('total_points')) {
+      context.handle(
+        _totalPointsMeta,
+        totalPoints.isAcceptableOrUnknown(
+          data['total_points']!,
+          _totalPointsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('all_recurring_completed')) {
+      context.handle(
+        _allRecurringCompletedMeta,
+        allRecurringCompleted.isAcceptableOrUnknown(
+          data['all_recurring_completed']!,
+          _allRecurringCompletedMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {date};
+  @override
+  DailyStat map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DailyStat(
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date'],
+      )!,
+      totalPoints: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}total_points'],
+      )!,
+      allRecurringCompleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}all_recurring_completed'],
+      )!,
+    );
+  }
+
+  @override
+  $DailyStatsTable createAlias(String alias) {
+    return $DailyStatsTable(attachedDatabase, alias);
+  }
+}
+
+class DailyStat extends DataClass implements Insertable<DailyStat> {
+  final String date;
+  final int totalPoints;
+  final bool allRecurringCompleted;
+  const DailyStat({
+    required this.date,
+    required this.totalPoints,
+    required this.allRecurringCompleted,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date'] = Variable<String>(date);
+    map['total_points'] = Variable<int>(totalPoints);
+    map['all_recurring_completed'] = Variable<bool>(allRecurringCompleted);
+    return map;
+  }
+
+  DailyStatsCompanion toCompanion(bool nullToAbsent) {
+    return DailyStatsCompanion(
+      date: Value(date),
+      totalPoints: Value(totalPoints),
+      allRecurringCompleted: Value(allRecurringCompleted),
+    );
+  }
+
+  factory DailyStat.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DailyStat(
+      date: serializer.fromJson<String>(json['date']),
+      totalPoints: serializer.fromJson<int>(json['totalPoints']),
+      allRecurringCompleted: serializer.fromJson<bool>(
+        json['allRecurringCompleted'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'date': serializer.toJson<String>(date),
+      'totalPoints': serializer.toJson<int>(totalPoints),
+      'allRecurringCompleted': serializer.toJson<bool>(allRecurringCompleted),
+    };
+  }
+
+  DailyStat copyWith({
+    String? date,
+    int? totalPoints,
+    bool? allRecurringCompleted,
+  }) => DailyStat(
+    date: date ?? this.date,
+    totalPoints: totalPoints ?? this.totalPoints,
+    allRecurringCompleted: allRecurringCompleted ?? this.allRecurringCompleted,
+  );
+  DailyStat copyWithCompanion(DailyStatsCompanion data) {
+    return DailyStat(
+      date: data.date.present ? data.date.value : this.date,
+      totalPoints: data.totalPoints.present
+          ? data.totalPoints.value
+          : this.totalPoints,
+      allRecurringCompleted: data.allRecurringCompleted.present
+          ? data.allRecurringCompleted.value
+          : this.allRecurringCompleted,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyStat(')
+          ..write('date: $date, ')
+          ..write('totalPoints: $totalPoints, ')
+          ..write('allRecurringCompleted: $allRecurringCompleted')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(date, totalPoints, allRecurringCompleted);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DailyStat &&
+          other.date == this.date &&
+          other.totalPoints == this.totalPoints &&
+          other.allRecurringCompleted == this.allRecurringCompleted);
+}
+
+class DailyStatsCompanion extends UpdateCompanion<DailyStat> {
+  final Value<String> date;
+  final Value<int> totalPoints;
+  final Value<bool> allRecurringCompleted;
+  final Value<int> rowid;
+  const DailyStatsCompanion({
+    this.date = const Value.absent(),
+    this.totalPoints = const Value.absent(),
+    this.allRecurringCompleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DailyStatsCompanion.insert({
+    required String date,
+    this.totalPoints = const Value.absent(),
+    this.allRecurringCompleted = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : date = Value(date);
+  static Insertable<DailyStat> custom({
+    Expression<String>? date,
+    Expression<int>? totalPoints,
+    Expression<bool>? allRecurringCompleted,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (date != null) 'date': date,
+      if (totalPoints != null) 'total_points': totalPoints,
+      if (allRecurringCompleted != null)
+        'all_recurring_completed': allRecurringCompleted,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DailyStatsCompanion copyWith({
+    Value<String>? date,
+    Value<int>? totalPoints,
+    Value<bool>? allRecurringCompleted,
+    Value<int>? rowid,
+  }) {
+    return DailyStatsCompanion(
+      date: date ?? this.date,
+      totalPoints: totalPoints ?? this.totalPoints,
+      allRecurringCompleted:
+          allRecurringCompleted ?? this.allRecurringCompleted,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (totalPoints.present) {
+      map['total_points'] = Variable<int>(totalPoints.value);
+    }
+    if (allRecurringCompleted.present) {
+      map['all_recurring_completed'] = Variable<bool>(
+        allRecurringCompleted.value,
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DailyStatsCompanion(')
+          ..write('date: $date, ')
+          ..write('totalPoints: $totalPoints, ')
+          ..write('allRecurringCompleted: $allRecurringCompleted, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1148,6 +1635,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TasksTable tasks = $TasksTable(this);
   late final $RecurringRulesTable recurringRules = $RecurringRulesTable(this);
   late final $TaskInstancesTable taskInstances = $TaskInstancesTable(this);
+  late final $DailyStatsTable dailyStats = $DailyStatsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1156,6 +1644,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     tasks,
     recurringRules,
     taskInstances,
+    dailyStats,
   ];
 }
 
@@ -1165,6 +1654,8 @@ typedef $$TasksTableCreateCompanionBuilder =
       required String title,
       required String type,
       Value<int> points,
+      Value<String?> startTime,
+      Value<String?> endTime,
       Value<bool> isDeleted,
       Value<DateTime> createdAt,
       Value<int> rowid,
@@ -1175,6 +1666,8 @@ typedef $$TasksTableUpdateCompanionBuilder =
       Value<String> title,
       Value<String> type,
       Value<int> points,
+      Value<String?> startTime,
+      Value<String?> endTime,
       Value<bool> isDeleted,
       Value<DateTime> createdAt,
       Value<int> rowid,
@@ -1246,6 +1739,16 @@ class $$TasksTableFilterComposer extends Composer<_$AppDatabase, $TasksTable> {
 
   ColumnFilters<int> get points => $composableBuilder(
     column: $table.points,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get endTime => $composableBuilder(
+    column: $table.endTime,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1339,6 +1842,16 @@ class $$TasksTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isDeleted => $composableBuilder(
     column: $table.isDeleted,
     builder: (column) => ColumnOrderings(column),
@@ -1370,6 +1883,12 @@ class $$TasksTableAnnotationComposer
 
   GeneratedColumn<int> get points =>
       $composableBuilder(column: $table.points, builder: (column) => column);
+
+  GeneratedColumn<String> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<String> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
 
   GeneratedColumn<bool> get isDeleted =>
       $composableBuilder(column: $table.isDeleted, builder: (column) => column);
@@ -1463,6 +1982,8 @@ class $$TasksTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<int> points = const Value.absent(),
+                Value<String?> startTime = const Value.absent(),
+                Value<String?> endTime = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -1471,6 +1992,8 @@ class $$TasksTableTableManager
                 title: title,
                 type: type,
                 points: points,
+                startTime: startTime,
+                endTime: endTime,
                 isDeleted: isDeleted,
                 createdAt: createdAt,
                 rowid: rowid,
@@ -1481,6 +2004,8 @@ class $$TasksTableTableManager
                 required String title,
                 required String type,
                 Value<int> points = const Value.absent(),
+                Value<String?> startTime = const Value.absent(),
+                Value<String?> endTime = const Value.absent(),
                 Value<bool> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -1489,6 +2014,8 @@ class $$TasksTableTableManager
                 title: title,
                 type: type,
                 points: points,
+                startTime: startTime,
+                endTime: endTime,
                 isDeleted: isDeleted,
                 createdAt: createdAt,
                 rowid: rowid,
@@ -1906,6 +2433,8 @@ typedef $$TaskInstancesTableCreateCompanionBuilder =
       required String id,
       required String taskId,
       required String date,
+      Value<String?> startTime,
+      Value<String?> endTime,
       Value<bool> isCompleted,
       Value<bool> isSkipped,
       Value<int> rowid,
@@ -1915,6 +2444,8 @@ typedef $$TaskInstancesTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> taskId,
       Value<String> date,
+      Value<String?> startTime,
+      Value<String?> endTime,
       Value<bool> isCompleted,
       Value<bool> isSkipped,
       Value<int> rowid,
@@ -1963,6 +2494,16 @@ class $$TaskInstancesTableFilterComposer
 
   ColumnFilters<String> get date => $composableBuilder(
     column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get endTime => $composableBuilder(
+    column: $table.endTime,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2019,6 +2560,16 @@ class $$TaskInstancesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get startTime => $composableBuilder(
+    column: $table.startTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get endTime => $composableBuilder(
+    column: $table.endTime,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<bool> get isCompleted => $composableBuilder(
     column: $table.isCompleted,
     builder: (column) => ColumnOrderings(column),
@@ -2067,6 +2618,12 @@ class $$TaskInstancesTableAnnotationComposer
 
   GeneratedColumn<String> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get startTime =>
+      $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<String> get endTime =>
+      $composableBuilder(column: $table.endTime, builder: (column) => column);
 
   GeneratedColumn<bool> get isCompleted => $composableBuilder(
     column: $table.isCompleted,
@@ -2131,6 +2688,8 @@ class $$TaskInstancesTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> taskId = const Value.absent(),
                 Value<String> date = const Value.absent(),
+                Value<String?> startTime = const Value.absent(),
+                Value<String?> endTime = const Value.absent(),
                 Value<bool> isCompleted = const Value.absent(),
                 Value<bool> isSkipped = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -2138,6 +2697,8 @@ class $$TaskInstancesTableTableManager
                 id: id,
                 taskId: taskId,
                 date: date,
+                startTime: startTime,
+                endTime: endTime,
                 isCompleted: isCompleted,
                 isSkipped: isSkipped,
                 rowid: rowid,
@@ -2147,6 +2708,8 @@ class $$TaskInstancesTableTableManager
                 required String id,
                 required String taskId,
                 required String date,
+                Value<String?> startTime = const Value.absent(),
+                Value<String?> endTime = const Value.absent(),
                 Value<bool> isCompleted = const Value.absent(),
                 Value<bool> isSkipped = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -2154,6 +2717,8 @@ class $$TaskInstancesTableTableManager
                 id: id,
                 taskId: taskId,
                 date: date,
+                startTime: startTime,
+                endTime: endTime,
                 isCompleted: isCompleted,
                 isSkipped: isSkipped,
                 rowid: rowid,
@@ -2225,6 +2790,169 @@ typedef $$TaskInstancesTableProcessedTableManager =
       TaskInstance,
       PrefetchHooks Function({bool taskId})
     >;
+typedef $$DailyStatsTableCreateCompanionBuilder =
+    DailyStatsCompanion Function({
+      required String date,
+      Value<int> totalPoints,
+      Value<bool> allRecurringCompleted,
+      Value<int> rowid,
+    });
+typedef $$DailyStatsTableUpdateCompanionBuilder =
+    DailyStatsCompanion Function({
+      Value<String> date,
+      Value<int> totalPoints,
+      Value<bool> allRecurringCompleted,
+      Value<int> rowid,
+    });
+
+class $$DailyStatsTableFilterComposer
+    extends Composer<_$AppDatabase, $DailyStatsTable> {
+  $$DailyStatsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get totalPoints => $composableBuilder(
+    column: $table.totalPoints,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get allRecurringCompleted => $composableBuilder(
+    column: $table.allRecurringCompleted,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$DailyStatsTableOrderingComposer
+    extends Composer<_$AppDatabase, $DailyStatsTable> {
+  $$DailyStatsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get totalPoints => $composableBuilder(
+    column: $table.totalPoints,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get allRecurringCompleted => $composableBuilder(
+    column: $table.allRecurringCompleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$DailyStatsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $DailyStatsTable> {
+  $$DailyStatsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<int> get totalPoints => $composableBuilder(
+    column: $table.totalPoints,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get allRecurringCompleted => $composableBuilder(
+    column: $table.allRecurringCompleted,
+    builder: (column) => column,
+  );
+}
+
+class $$DailyStatsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $DailyStatsTable,
+          DailyStat,
+          $$DailyStatsTableFilterComposer,
+          $$DailyStatsTableOrderingComposer,
+          $$DailyStatsTableAnnotationComposer,
+          $$DailyStatsTableCreateCompanionBuilder,
+          $$DailyStatsTableUpdateCompanionBuilder,
+          (
+            DailyStat,
+            BaseReferences<_$AppDatabase, $DailyStatsTable, DailyStat>,
+          ),
+          DailyStat,
+          PrefetchHooks Function()
+        > {
+  $$DailyStatsTableTableManager(_$AppDatabase db, $DailyStatsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DailyStatsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DailyStatsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DailyStatsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> date = const Value.absent(),
+                Value<int> totalPoints = const Value.absent(),
+                Value<bool> allRecurringCompleted = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyStatsCompanion(
+                date: date,
+                totalPoints: totalPoints,
+                allRecurringCompleted: allRecurringCompleted,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String date,
+                Value<int> totalPoints = const Value.absent(),
+                Value<bool> allRecurringCompleted = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => DailyStatsCompanion.insert(
+                date: date,
+                totalPoints: totalPoints,
+                allRecurringCompleted: allRecurringCompleted,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$DailyStatsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $DailyStatsTable,
+      DailyStat,
+      $$DailyStatsTableFilterComposer,
+      $$DailyStatsTableOrderingComposer,
+      $$DailyStatsTableAnnotationComposer,
+      $$DailyStatsTableCreateCompanionBuilder,
+      $$DailyStatsTableUpdateCompanionBuilder,
+      (DailyStat, BaseReferences<_$AppDatabase, $DailyStatsTable, DailyStat>),
+      DailyStat,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2235,4 +2963,6 @@ class $AppDatabaseManager {
       $$RecurringRulesTableTableManager(_db, _db.recurringRules);
   $$TaskInstancesTableTableManager get taskInstances =>
       $$TaskInstancesTableTableManager(_db, _db.taskInstances);
+  $$DailyStatsTableTableManager get dailyStats =>
+      $$DailyStatsTableTableManager(_db, _db.dailyStats);
 }

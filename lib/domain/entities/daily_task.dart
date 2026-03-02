@@ -1,11 +1,18 @@
 // Эта модель ничего не знает про базу данных. Она нужна только для UI.
 class DailyTask {
-  final String id; // ID самого шаблона задачи
+  final String id;
   final String title;
-  final String type; // ONE_TIME или RECURRING
+  final String type;
   final int points;
   final bool isCompleted;
   final bool isSkipped;
+  final String? startTime;
+  final String? endTime;
+
+  // Поля для отображения типа повторения в UI карточки
+  final String frequency; // 'DAILY', 'WEEKLY', 'INTERVAL', 'ONCE'
+  final String? daysOfWeek; // "1,3,5" (для WEEKLY)
+  final int interval; // N (для INTERVAL)
 
   DailyTask({
     required this.id,
@@ -14,5 +21,10 @@ class DailyTask {
     required this.points,
     required this.isCompleted,
     required this.isSkipped,
+    this.startTime,
+    this.endTime,
+    this.frequency = 'DAILY',
+    this.daysOfWeek,
+    this.interval = 1,
   });
 }
