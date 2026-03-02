@@ -1,4 +1,4 @@
-# Discipline (Дисциплина) 🚀
+# F.O.K.us Mobile🚀
 
 ![Discipline Hero](assets/readme/hero.png)
 
@@ -7,7 +7,7 @@
 [![Clean Architecture](https://img.shields.io/badge/Architecture-Clean-red?style=for-the-badge)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Discipline** — это современное приложение для управления задачами и формирования привычек, созданное для тех, кто ценит строгую дисциплину и визуальный прогресс. 
+**F.O.K.us Mobile** — это современное приложение для управления задачами и формирования привычек, созданное для тех, кто ценит строгую дисциплину и визуальный прогресс. 
 
 ---
 
